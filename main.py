@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 A simple app to create a JWT token.
 """
@@ -34,7 +35,7 @@ def _logger():
 
 LOG = _logger()
 LOG.debug("Starting with log level: %s" % LOG_LEVEL)
-APP = Flask(__name__)
+app = Flask(__name__)
 
 
 def require_jwt(function):
@@ -58,12 +59,12 @@ def require_jwt(function):
     return decorated_function
 
 
-@APP.route('/', methods=['POST', 'GET'])
+@app.route('/', methods=['POST', 'GET'])
 def health():
     return jsonify("Healthy")
 
 
-@APP.route('/auth', methods=['POST'])
+@app.route('/auth', methods=['POST'])
 def auth():
     """
     Create JWT token based on email.
@@ -84,12 +85,12 @@ def auth():
     return jsonify(token=_get_jwt(user_data).decode('utf-8'))
 
 
-@APP.route('/contents', methods=['GET'])
+@app.route('/contents', methods=['GET'])
 def decode_jwt():
     """
     Check user token and return non-secret data
     """
-    if not 'Authorization' in request.headers:
+    if 'Authorization' not in request.headers:
         abort(401)
     data = request.headers['Authorization']
     token = str.replace(str(data), 'Bearer ', '')
@@ -113,4 +114,4 @@ def _get_jwt(user_data):
 
 
 if __name__ == '__main__':
-    APP.run(host='127.0.0.1', port=8080, debug=True)
+    app.run(host='127.0.0.1', port=8080, debug=True)
